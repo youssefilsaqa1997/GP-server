@@ -17,6 +17,9 @@ var app = express();
 app.use(cors())
 app.use(bodyParser.json());
 
+app.get('/',(req,res)=>{
+    res.send({massege:'welcome to ilsaqa GP project'})
+})
 app.post('/signUp', (req, res) => {
     if (req.body.mobile.length == 11) {
 
