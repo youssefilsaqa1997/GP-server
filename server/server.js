@@ -18,7 +18,15 @@ app.use(cors())
 app.use(bodyParser.json());
 
 app.get('/',(req,res)=>{
-    res.send({massege:'welcome to ilsaqa GP'})
+    res.send({massege:'welcome to ilsaqa GP',
+    apis:[{url:"https://secret-refuge-39928.herokuapp.com/loginToken",
+         type:"post request",
+         itTakes:{mobile:"01xxxxxxxxx",password:"main******"},
+         itGive:{userObject:{mobile:"010xxxxxxxx",
+        name:"folan",
+    id:"23rfewg4656t2qefgeti4534w2qe"}
+}   
+}]})
 })
 app.post('/signUp', (req, res) => {
     if (req.body.mobile.length == 11) {
