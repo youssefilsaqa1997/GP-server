@@ -16,8 +16,8 @@ var PlaceSchema = new mongoose.Schema({
     required:true,
     trim:true
   },
-  location:{
-    type:Object,
+  area:{
+    type:String,
     required:true
   },
   rate:{

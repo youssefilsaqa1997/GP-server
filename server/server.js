@@ -25,9 +25,45 @@ app.get('/',(req,res)=>{
          itGive:{userObject:{mobile:"010xxxxxxxx",
         name:"folan",
     id:"23rfewg4656t2qefgeti4534w2qe"}
-}   
-}]})
+                 }   
+},{
+    url:"https://secret-refuge-39928.herokuapp.com/allPlaces",
+    type:"get request",
+    itTakes:"nothing",
+    itGive:"all places in DB"
+},{
+    url:"https://secret-refuge-39928.herokuapp.com/signUp",
+    type:"post request",
+    itTakes:{mobile:"01xxxxxxxxx",password:"main******",name:"7amada",email:"7amada@tomail.com",typeOfUser:"user||owner"},
+    itGive:"nothing" 
+  },{
+    url:"https://secret-refuge-39928.herokuapp.com/createPlace",
+    type:"post request",
+    itTakes:{owner_id:"sadfjweoifqmeoasl123e",name:"elgezira club",address:"8 elkamel mohamed ,zamalek",area:"zamalek",playGround:[]},
+    itGive:"nothing"
+  },{
+    url:"https://secret-refuge-39928.herokuapp.com/createschedual",
+    type:"post request",
+    itTakes:{place_id:"sadfjweoifqmeoasl123e",playgroundname:"elgezira club",reserverName:"abutreka",hours:[1.2],reservedBy:"id",date:"1/1/2001",deposite:20,reservermobile:"010xxxxxxxx"},
+    itGive:"nothing"
+  },{
+    url:"https://secret-refuge-39928.herokuapp.com/scheduals",
+    type:"post request",
+    itTakes:{place_id:"sadfjweoifqmeoasl123e",date:"1/1/2001"},
+    itGive:"all scheduals in the place with the same date"
+  }
+        ]
+          })
 })
+
+
+
+app.get('/allPlaces',(req,res)=>{
+    Place.find().then((places) => {
+        res.send(places)
+        });
+    } 
+)           
 app.post('/signUp', (req, res) => {
     if (req.body.mobile.length == 11) {
 
@@ -61,7 +97,7 @@ app.post('/createPlace', (req, res) => {
         owner_id: req.body.owner_id,
         name: req.body.name,
         address: req.body.address,
-        location: req.body.location,
+        area: req.body.area,
         playGround: req.body.playGround
     });
 
