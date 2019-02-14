@@ -111,8 +111,8 @@ app.post('/createPlace', (req, res) => {
 
 app.post('/loginToken', (req, res) => {
     if (req.body.mobile.length == 11) {
-        User.findOne({ mobile: req.body.mobile }).then((userObject) => {
-            bcrypt.compare(req.body.password, doc.password, (err, Res) => {
+        User.findOne({mobile:req.body.mobile}).then((userObject) => {
+            bcrypt.compare(req.body.password, userObject.password, (err, Res) => {
                 if (Res == true) {
                     if(userObject.typeOfUser=="owner"){
                     const token = userObject.generateAuthToken();
@@ -151,7 +151,7 @@ app.post('/loginToken', (req, res) => {
             })
 
         }).catch((e) => {
-            res.status(400).send(e+{ message: "mobile number not found" });
+            res.status(404).send({ message: "mobile number not found" });
         })
     }
     else {
