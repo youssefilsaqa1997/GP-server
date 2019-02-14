@@ -111,23 +111,39 @@ app.post('/createPlace', (req, res) => {
 
 app.post('/loginToken', (req, res) => {
     if (req.body.mobile.length == 11) {
-        User.findOne({ mobile: req.body.mobile }).then((doc) => {
+        User.findOne({ mobile: req.body.mobile }).then((userObject) => {
             bcrypt.compare(req.body.password, doc.password, (err, Res) => {
                 if (Res == true) {
-                    const token = doc.generateAuthToken();
-                    Place.find({ owner_id: doc._id }).then((doc2) => {
+                    if(userObject.typeOfUser=="owner"){
+                    const token = userObject.generateAuthToken();
+                    Place.find({ owner_id: userObject._id }).then((ownerPlaces) => {
                             res.header('x-auth',token).send({
                                 owner: {
-                                    mobile: doc.mobile,
-                                    name: doc.name,
-                                    id: doc._id,
-                                    places: doc2
+                                    mobile: userObject.mobile,
+                                    name: userObject.name,
+                                    id: userObject._id,
+                                    places: ownerPlaces
                                 }
                             });
                         } 
                     ).catch((e) => {
                         res.status(400).send({ message: "there is no places yet to this owner" });
                     })
+                }else if(userObject.typeOfUser=="user"){
+                    const token = userObject.generateAuthToken();
+                    Place.find().then((allPlaces) => {
+                            res.header('x-auth',token).send({
+                            user: {
+                                mobile: userObject.mobile,
+                                name: userObject.name,
+                                id: userObject._id,
+                                places: allPlaces,
+                            }
+                        });
+                    }).catch((e) => {
+                    res.status(404).send({ message: "there is no places yet" });
+                })
+                }
                 } else {
                     res.status(400).send({ message: "password doesn't match" });
                 }
@@ -135,7 +151,7 @@ app.post('/loginToken', (req, res) => {
             })
 
         }).catch((e) => {
-            res.status(400).send({ message: "mobile number not found" });
+            res.status(400).send(e+{ message: "mobile number not found" });
         })
     }
     else {
@@ -152,7 +168,8 @@ app.post("/createschedual", (req, res) => {
         reservedBy: req.body.reservedBy,
         date: req.body.date,
         deposite: req.body.deposite,
-        reservermobile: req.body.reservermobile
+        reservermobile: req.body.reservermobile,
+        typeOfreservation:req.body.typeOfreservation
     });
 
     schedual.save().then((doc) => {

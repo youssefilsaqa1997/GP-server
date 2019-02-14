@@ -41,6 +41,10 @@ var SchedualSchema = new mongoose.Schema({
     required:true,
     minlength:11,
     trim:true,
+  },
+  typeOfreservation:{
+    type:Object,
+    required:true
   }
 });
 
