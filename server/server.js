@@ -32,11 +32,6 @@ app.get('/', (req, res) => {
                 }
             }
         }, {
-            url: "https://secret-refuge-39928.herokuapp.com/allPlaces",
-            type: "get request",
-            itTakes: "nothing",
-            itGive: "all places in DB"
-        }, {
             url: "https://secret-refuge-39928.herokuapp.com/signUp",
             type: "post request",
             itTakes: { mobile: "01xxxxxxxxx", password: "main******", name: "7amada", email: "7amada@tomail.com", typeOfUser: "user||owner" },
@@ -68,12 +63,6 @@ app.get('/', (req, res) => {
 
 
 
-app.get('/allPlaces', (req, res) => {
-    Place.find().then((places) => {
-        res.send(places)
-    });
-}
-)
 app.post('/signUp', (req, res) => {
     if (req.body.mobile.length == 11) {
 
