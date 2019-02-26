@@ -161,14 +161,14 @@ app.post('/loginToken', (req, res) => {
 app.post("/createschedual", (req, res) => {
     var schedual = new Schedual({
         place_id: req.body.place_id,
-        playGroundName: req.body.playgroundname,
+        playGroundName: req.body.playGroundName,
         reserverName: req.body.reserverName,
         hours: req.body.hours,
         reservedBy: req.body.reservedBy,
         date: req.body.date,
         deposite: req.body.deposite,
-        reserverMobile: req.body.reservermobile,
-        typeOfReservation: req.body.typeOfreservation
+        reserverMobile: req.body.reserverMobile,
+        typeOfReservation: req.body.typeOfReservation
     });
 
     schedual.save().then((doc) => {
