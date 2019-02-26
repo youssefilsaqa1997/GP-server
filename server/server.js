@@ -10,60 +10,70 @@ var { Place } = require('./models/place');
 var { Schedual } = require('./models/schedual');
 var { mongoose } = require('./DB/mongoose');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4045;
 
 var app = express();
 
 app.use(cors())
 app.use(bodyParser.json());
 
-app.get('/',(req,res)=>{
-    res.send({massege:'welcome to ilsaqa GP',
-    apis:[{url:"https://secret-refuge-39928.herokuapp.com/loginToken",
-         type:"post request",
-         itTakes:{mobile:"01xxxxxxxxx",password:"main******"},
-         itGive:{userObject:{mobile:"010xxxxxxxx",
-        name:"folan",
-    id:"23rfewg4656t2qefgeti4534w2qe"}
-                 }   
-},{
-    url:"https://secret-refuge-39928.herokuapp.com/allPlaces",
-    type:"get request",
-    itTakes:"nothing",
-    itGive:"all places in DB"
-},{
-    url:"https://secret-refuge-39928.herokuapp.com/signUp",
-    type:"post request",
-    itTakes:{mobile:"01xxxxxxxxx",password:"main******",name:"7amada",email:"7amada@tomail.com",typeOfUser:"user||owner"},
-    itGive:"nothing" 
-  },{
-    url:"https://secret-refuge-39928.herokuapp.com/createPlace",
-    type:"post request",
-    itTakes:{owner_id:"sadfjweoifqmeoasl123e",name:"elgezira club",address:"8 elkamel mohamed ,zamalek",area:"zamalek",playGround:[]},
-    itGive:"nothing"
-  },{
-    url:"https://secret-refuge-39928.herokuapp.com/createschedual",
-    type:"post request",
-    itTakes:{place_id:"sadfjweoifqmeoasl123e",playgroundname:"elgezira club",reserverName:"abutreka",hours:[1.2],reservedBy:"id",date:"1/1/2001",deposite:20,reservermobile:"010xxxxxxxx"},
-    itGive:"nothing"
-  },{
-    url:"https://secret-refuge-39928.herokuapp.com/scheduals",
-    type:"post request",
-    itTakes:{place_id:"sadfjweoifqmeoasl123e",date:"1/1/2001"},
-    itGive:"all scheduals in the place with the same date"
-  }
+app.get('/', (req, res) => {
+    res.send({
+        massege: 'welcome to ilsaqa GP',
+        apis: [{
+            url: "https://secret-refuge-39928.herokuapp.com/loginToken",
+            type: "post request",
+            itTakes: { mobile: "01xxxxxxxxx", password: "main******" },
+            itGive: {
+                userObject: {
+                    mobile: "010xxxxxxxx",
+                    name: "folan",
+                    id: "23rfewg4656t2qefgeti4534w2qe"
+                }
+            }
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/allPlaces",
+            type: "get request",
+            itTakes: "nothing",
+            itGive: "all places in DB"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/signUp",
+            type: "post request",
+            itTakes: { mobile: "01xxxxxxxxx", password: "main******", name: "7amada", email: "7amada@tomail.com", typeOfUser: "user||owner" },
+            itGive: "nothing"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/createPlace",
+            type: "post request",
+            itTakes: { owner_id: "sadfjweoifqmeoasl123e", name: "elgezira club", address: "8 elkamel mohamed ,zamalek", area: "zamalek", playGround: [] },
+            itGive: "nothing"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/createschedual",
+            type: "post request",
+            itTakes: {
+                place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", reserverName: "abutreka", hours: [1.2], reservedBy: "id", date: "1/1/2001", deposite: 20, reserverMobile: "010xxxxxxxx", typeOfReservation: {
+                    type: "puplic",
+                    neededPlayers: 1
+                }
+            },
+            itGive: "nothing"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/scheduals",
+            type: "post request",
+            itTakes: { place_id: "sadfjweoifqmeoasl123e",playGroundName:"field1", date: "1/1/2001" },
+            itGive: "free hours in the specific playground with the same date"
+        }
         ]
-          })
+    })
 })
 
 
 
-app.get('/allPlaces',(req,res)=>{
+app.get('/allPlaces', (req, res) => {
     Place.find().then((places) => {
         res.send(places)
-        });
-    } 
-)           
+    });
+}
+)
 app.post('/signUp', (req, res) => {
     if (req.body.mobile.length == 11) {
 
@@ -111,13 +121,13 @@ app.post('/createPlace', (req, res) => {
 
 app.post('/loginToken', (req, res) => {
     if (req.body.mobile.length == 11) {
-        User.findOne({mobile:req.body.mobile}).then((userObject) => {
+        User.findOne({ mobile: req.body.mobile }).then((userObject) => {
             bcrypt.compare(req.body.password, userObject.password, (err, Res) => {
                 if (Res == true) {
-                    if(userObject.typeOfUser=="owner"){
-                    const token = userObject.generateAuthToken();
-                    Place.find({ owner_id: userObject._id }).then((ownerPlaces) => {
-                            res.header('x-auth',token).send({
+                    if (userObject.typeOfUser == "owner") {
+                        const token = userObject.generateAuthToken();
+                        Place.find({ owner_id: userObject._id }).then((ownerPlaces) => {
+                            res.header('x-auth', token).send({
                                 owner: {
                                     mobile: userObject.mobile,
                                     name: userObject.name,
@@ -125,25 +135,25 @@ app.post('/loginToken', (req, res) => {
                                     places: ownerPlaces
                                 }
                             });
-                        } 
-                    ).catch((e) => {
-                        res.status(400).send({ message: "there is no places yet to this owner" });
-                    })
-                }else if(userObject.typeOfUser=="user"){
-                    const token = userObject.generateAuthToken();
-                    Place.find().then((allPlaces) => {
-                            res.header('x-auth',token).send({
-                            user: {
-                                mobile: userObject.mobile,
-                                name: userObject.name,
-                                id: userObject._id,
-                                places: allPlaces,
-                            }
-                        });
-                    }).catch((e) => {
-                    res.status(404).send({ message: "there is no places yet" });
-                })
-                }
+                        }
+                        ).catch((e) => {
+                            res.status(400).send({ message: "there is no places yet to this owner" });
+                        })
+                    } else if (userObject.typeOfUser == "user") {
+                        const token = userObject.generateAuthToken();
+                        Place.find().then((allPlaces) => {
+                            res.header('x-auth', token).send({
+                                user: {
+                                    mobile: userObject.mobile,
+                                    name: userObject.name,
+                                    id: userObject._id,
+                                    places: allPlaces,
+                                }
+                            });
+                        }).catch((e) => {
+                            res.status(404).send({ message: "there is no places yet" });
+                        })
+                    }
                 } else {
                     res.status(400).send({ message: "password doesn't match" });
                 }
@@ -162,14 +172,14 @@ app.post('/loginToken', (req, res) => {
 app.post("/createschedual", (req, res) => {
     var schedual = new Schedual({
         place_id: req.body.place_id,
-        playgroundname: req.body.playgroundname,
+        playGroundName: req.body.playgroundname,
         reserverName: req.body.reserverName,
         hours: req.body.hours,
         reservedBy: req.body.reservedBy,
         date: req.body.date,
         deposite: req.body.deposite,
-        reservermobile: req.body.reservermobile,
-        typeOfreservation:req.body.typeOfreservation
+        reserverMobile: req.body.reservermobile,
+        typeOfReservation: req.body.typeOfreservation
     });
 
     schedual.save().then((doc) => {
@@ -179,12 +189,29 @@ app.post("/createschedual", (req, res) => {
     })
 })
 
-app.post("/scheduals", (req, res) => {
-    Schedual.find({place_id:req.body.place_id ,date:req.body.date}).then((doc) => {
-        res.send(doc)
-    })
-})
+app.post("/scheduals", async (req, res) => {
 
+    Place.findById(req.body.place_id).then((placeObject) => {
+        var playGroundObject = placeObject.playGround.find((playGround) => playGround.name === req.body.playGroundName);
+        var emptyHours = playGroundObject.avalibleHours;
+        Schedual.find({ place_id: req.body.place_id, playGroundName: req.body.playGroundName, date: req.body.date }).then((scheduals) => {
+
+            var closedHoursArray = []
+            var closedHours = []
+            for (i = 0; i < scheduals.length; i++) {
+                closedHoursArray.push(scheduals[i].hours)
+            }
+            for (x = 0; x < closedHoursArray.length; x++) {
+                closedHours = closedHours.concat(closedHoursArray[x]);
+            }
+            for (x = 0; x < closedHours.length; x++) {
+                emptyHours = emptyHours.filter(hour => hour != closedHours[x])
+            }
+            res.send(emptyHours)
+        })
+
+    }).catch(e => res.send(e))
+})
 
 app.listen(port, () => {
     console.log(`startes on port ${port}`)

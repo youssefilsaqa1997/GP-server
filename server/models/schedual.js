@@ -6,7 +6,7 @@ var SchedualSchema = new mongoose.Schema({
     required:true,
     trim:true
   },
-  playgroundname:{
+  playGroundName:{
     type:String,
     required:true,
     trim:true
@@ -36,13 +36,13 @@ var SchedualSchema = new mongoose.Schema({
     required:true,
     trim:true
   },
-  reservermobile:{
+  reserverMobile:{
     type:String,
     required:true,
     minlength:11,
     trim:true,
   },
-  typeOfreservation:{
+  typeOfReservation:{
     type:Object,
     required:true
   }
