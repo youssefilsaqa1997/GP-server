@@ -45,17 +45,28 @@ app.get('/', (req, res) => {
             url: "https://secret-refuge-39928.herokuapp.com/createschedual",
             type: "post request",
             itTakes: {
-                place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", reserverName: "abutreka", hours: [1.2], reservedBy: "id", date: "1/1/2001", deposite: 20, reserverMobile: "010xxxxxxxx", typeOfReservation: {
+                place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", reserverName: "abutreka", hours: [1,2], reservedBy: "id", date: "1/1/2001", deposite: 20, reserverMobile: "010xxxxxxxx", typeOfReservation: {
                     type: "puplic",
-                    neededPlayers: 1
+                    neededPlayers: 1,
+                    playersJoined:[]
                 }
             },
-            itGive: "nothing"
+            itGive: "object that saved in DB"
         }, {
-            url: "https://secret-refuge-39928.herokuapp.com/scheduals",
+            url: "https://secret-refuge-39928.herokuapp.com/freeHours",
             type: "post request",
             itTakes: { place_id: "sadfjweoifqmeoasl123e",playGroundName:"field1", date: "1/1/2001" },
-            itGive: "free hours in the specific playground with the same date"
+            itGive: "free hours in specific playground with specific date"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/closedSlots",
+            type: "post request",
+            itTakes: { place_id: "sadfjweoifqmeoasl123e",playGroundName:"field1", date: "1/1/2001" },
+            itGive: "all scheduals in specific playground with specific date"
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/typeOfReservation",
+            type: "post request",
+            itTakes: {date: "1/1/2001",type:"public||private"},
+            itGive: "all hours in specific date with the same type"
         }
         ]
     })
@@ -178,7 +189,7 @@ app.post("/createschedual", (req, res) => {
     })
 })
 
-app.post("/scheduals", async (req, res) => {
+app.post("/freeHours", async (req, res) => {
 
     Place.findById(req.body.place_id).then((placeObject) => {
         var playGroundObject = placeObject.playGround.find((playGround) => playGround.name === req.body.playGroundName);
@@ -200,6 +211,39 @@ app.post("/scheduals", async (req, res) => {
         })
 
     }).catch(e => res.send(e))
+})
+
+app.post("/closedSlots",  (req, res) => {
+
+    Schedual.find({ place_id: req.body.place_id, playGroundName: req.body.playGroundName, date: req.body.date }).then((closedPlaces) => {
+        res.send(closedPlaces)
+    }).catch((e) => {
+        res.statues(404).send({ massege: "No scheduals with this data", e })
+    })
+
+
+})
+
+app.post("/typeOfReservation",  (req, res)=>{
+    Schedual.find({date: req.body.date }).then((scheduals)=>{
+        if(scheduals.length>0){
+            let schedual = []
+            for(i=0;i<scheduals.length;i++){
+                if(scheduals[i].typeOfReservation.type=== req.body.type){
+                    schedual.push(scheduals[i])
+                }
+            }
+            if (schedual.length>0){
+                res.send(schedual)
+            }else{
+                res.send({massege:`no ${req.body.type} reservation yet on this date : ${req.body.date}`})
+            }
+        }else{
+            res.send({massege:`there is no reservation yet on this date : ${req.body.date}`})
+        }     
+    }).catch((e)=>{
+        res.send(e)
+    })    
 })
 
 app.listen(port, () => {
