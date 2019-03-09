@@ -45,28 +45,33 @@ app.get('/', (req, res) => {
             url: "https://secret-refuge-39928.herokuapp.com/createschedual",
             type: "post request",
             itTakes: {
-                place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", reserverName: "abutreka", hours: [1,2], reservedBy: "id", date: "1/1/2001", deposite: 20, reserverMobile: "010xxxxxxxx", typeOfReservation: {
+                place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", reserverName: "abutreka", hours: [1, 2], reservedBy: "id", date: "1/1/2001", deposite: 20, reserverMobile: "010xxxxxxxx", typeOfReservation: {
                     type: "puplic",
                     neededPlayers: 1,
-                    playersJoined:[]
+                    playersJoined: []
                 }
             },
             itGive: "object that saved in DB"
         }, {
             url: "https://secret-refuge-39928.herokuapp.com/freeHours",
             type: "post request",
-            itTakes: { place_id: "sadfjweoifqmeoasl123e",playGroundName:"field1", date: "1/1/2001" },
+            itTakes: { place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", date: "1/1/2001" },
             itGive: "free hours in specific playground with specific date"
         }, {
             url: "https://secret-refuge-39928.herokuapp.com/closedSlots",
             type: "post request",
-            itTakes: { place_id: "sadfjweoifqmeoasl123e",playGroundName:"field1", date: "1/1/2001" },
+            itTakes: { place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", date: "1/1/2001" },
             itGive: "all scheduals in specific playground with specific date"
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/typeOfReservation",
             type: "post request",
-            itTakes: {date: "1/1/2001",type:"public||private"},
+            itTakes: { date: "1/1/2001", type: "public||private" },
             itGive: "all hours in specific date with the same type"
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/boolenHours",
+            type: "post request",
+            itTakes: { place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", date: "1/1/2001" },
+            itGive: "avalible hours (Array of Objects) .each object have string , integer & boolen(to show if this hour booked or not) values"
         }
         ]
     })
@@ -213,7 +218,7 @@ app.post("/freeHours", async (req, res) => {
     }).catch(e => res.send(e))
 })
 
-app.post("/closedSlots",  (req, res) => {
+app.post("/closedSlots", (req, res) => {
 
     Schedual.find({ place_id: req.body.place_id, playGroundName: req.body.playGroundName, date: req.body.date }).then((closedPlaces) => {
         res.send(closedPlaces)
@@ -224,27 +229,67 @@ app.post("/closedSlots",  (req, res) => {
 
 })
 
-app.post("/typeOfReservation",  (req, res)=>{
-    Schedual.find({date: req.body.date }).then((scheduals)=>{
-        if(scheduals.length>0){
+app.post("/typeOfReservation", (req, res) => {
+    Schedual.find({ date: req.body.date }).then((scheduals) => {
+        if (scheduals.length > 0) {
             let schedual = []
-            for(i=0;i<scheduals.length;i++){
-                if(scheduals[i].typeOfReservation.type=== req.body.type){
+            for (i = 0; i < scheduals.length; i++) {
+                if (scheduals[i].typeOfReservation.type === req.body.type) {
                     schedual.push(scheduals[i])
                 }
             }
-            if (schedual.length>0){
+            if (schedual.length > 0) {
                 res.send(schedual)
-            }else{
-                res.send({massege:`no ${req.body.type} reservation yet on this date : ${req.body.date}`})
+            } else {
+                res.send({ massege: `no ${req.body.type} reservation yet on this date : ${req.body.date}` })
             }
-        }else{
-            res.send({massege:`there is no reservation yet on this date : ${req.body.date}`})
-        }     
-    }).catch((e)=>{
+        } else {
+            res.send({ massege: `there is no reservation yet on this date : ${req.body.date}` })
+        }
+    }).catch((e) => {
         res.send(e)
-    })    
+    })
 })
+
+app.post("/boolenHours", (req, res) => {
+
+    var fullHours = ["00:00 to 01:00", "01:00 to 02:00", "02:00 to 03:00", "03:00 to 04:00", "04:00 to 05:00", "05:00 to 06:00", "06:00 to 07:00", "07:00 to 08:00", "08:00 to 09:00", "09:00 to 10:00", "10:00 to 11:00", "11:00 to 12:00", "12:00 to 13:00", "13:00 to 14:00", "14:00 to 15:00", "15:00 to 16:00", "16:00 to 17:00", "17:00 to 18:00", "18:00 to 19:00", "19:00 to 20:00", "20:00 to 21:00", "21:00 to 22:00", "22:00 to 23:00", "23:00 to 00:00"];
+    Place.findById(req.body.place_id).then((placeObject) => {
+        var playGroundObject = placeObject.playGround.find((playGround) => playGround.name === req.body.playGroundName);
+        var emptyHours = playGroundObject.avalibleHours;
+        Schedual.find({ place_id: req.body.place_id, playGroundName: req.body.playGroundName, date: req.body.date }).then((scheduals) => {
+
+            var closedHoursArray = []
+            var closedHours = []
+            var hoursObjects = []
+            var templete = []
+            for (i = 0; i < scheduals.length; i++) {
+                closedHoursArray.push(scheduals[i].hours)
+            }
+            for (x = 0; x < closedHoursArray.length; x++) {
+                closedHours = closedHours.concat(closedHoursArray[x]);
+            }
+
+            for (y = 0; y < emptyHours.length; y++) {
+                for (h = 0; h < closedHours.length; h++) {
+                    if (emptyHours[y] == closedHours[h] && templete.includes(emptyHours[y]) === false) {
+                        hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": true, "value": emptyHours[y] })
+                        templete.push(emptyHours[y])
+                    } else if (templete.includes(emptyHours[y]) === false && closedHours.includes(emptyHours[y]) === false) {
+                        hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
+                        templete.push(emptyHours[y])
+                    }
+                }
+            }
+
+            res.send(hoursObjects)
+        })
+
+    }).catch(e => res.send(e))
+})
+
+
+
 
 app.listen(port, () => {
     console.log(`startes on port ${port}`)
