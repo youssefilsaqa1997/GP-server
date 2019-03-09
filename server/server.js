@@ -72,6 +72,11 @@ app.get('/', (req, res) => {
             type: "post request",
             itTakes: { place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", date: "1/1/2001" },
             itGive: "avalible hours (Array of Objects) .each object have string , integer & boolen(to show if this hour booked or not) values"
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/joinGame",
+            type: "post request",
+            itTakes: { reservationId:"sadfadgvawer43r4wef", userId:"sdaun298qwefhc9qowc" },
+            itGive: "statues if you are joined or not"
         }
         ]
     })
@@ -289,7 +294,25 @@ app.post("/boolenHours", (req, res) => {
 })
 
 
-
+app.post("/joinGame",(req,res)=>{
+    
+    Schedual.findById(req.body.reservationId).then((reservationObject)=>{
+        let updatedData=reservationObject.typeOfReservation;
+        if(updatedData.type==="puplic"&& updatedData.playersJoined.includes(req.body.userId) === false){
+            updatedData.playersJoined.push(req.body.userId);
+            updatedData.neededPlayers=updatedData.neededPlayers-1;
+            if(updatedData.neededPlayers==0){
+                updatedData.type="private"
+            }
+            Schedual.findOneAndUpdate({_id:reservationObject._id},{ $set: {typeOfReservation:updatedData}}).then((data)=>{
+                res.send({message:"you are joined, please attend in your time"})
+            }) 
+        }else{
+            res.send({message:"there is no place, or you can't join 2 times at same reservation"})
+        }
+           
+    })
+})
 
 app.listen(port, () => {
     console.log(`startes on port ${port}`)
