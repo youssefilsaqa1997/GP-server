@@ -276,13 +276,19 @@ app.post("/boolenHours", (req, res) => {
             }
 
             for (y = 0; y < emptyHours.length; y++) {
-                for (h = 0; h < closedHours.length; h++) {
-                    if (emptyHours[y] == closedHours[h] && templete.includes(emptyHours[y]) === false) {
-                        hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": true, "value": emptyHours[y] })
-                        templete.push(emptyHours[y])
-                    } else if (templete.includes(emptyHours[y]) === false && closedHours.includes(emptyHours[y]) === false) {
-                        hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
-                        templete.push(emptyHours[y])
+                if(closedHours.length===0 && templete.includes(emptyHours[y]) === false){
+                    hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
+                    templete.push(emptyHours[y])                    
+                }else{
+                    for (h = 0; h < closedHours.length; h++) {
+                        if (emptyHours[y] == closedHours[h] && templete.includes(emptyHours[y]) === false) {
+                            hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": true, "value": emptyHours[y] })
+                            templete.push(emptyHours[y])
+                        } else if (templete.includes(emptyHours[y]) === false && closedHours.includes(emptyHours[y]) === false) {
+                            hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
+                            templete.push(emptyHours[y])
+                        }
+                        
                     }
                 }
             }
