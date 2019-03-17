@@ -304,7 +304,7 @@ app.post("/joinGame",(req,res)=>{
     
     Schedual.findById(req.body.reservationId).then((reservationObject)=>{
         let updatedData=reservationObject.typeOfReservation;
-        if(updatedData.type==="puplic"&& updatedData.playersJoined.includes(req.body.userId) === false){
+        if(updatedData.type==="public"&& updatedData.playersJoined.includes(req.body.userId) === false){ 
             updatedData.playersJoined.push(req.body.userId);
             updatedData.neededPlayers=updatedData.neededPlayers-1;
             if(updatedData.neededPlayers==0){
