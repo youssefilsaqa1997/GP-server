@@ -21,6 +21,11 @@ app.get('/', (req, res) => {
     res.send({
         massege: 'welcome to ilsaqa GP',
         apis: [{
+            url: "https://secret-refuge-39928.herokuapp.com/signUp",
+            type: "post request",
+            itTakes: { mobile: "01xxxxxxxxx", password: "main******", name: "7amada", email: "7amada@tomail.com", typeOfUser: "user||owner" },
+            itGive: "nothing"
+        },{
             url: "https://secret-refuge-39928.herokuapp.com/loginToken",
             type: "post request",
             itTakes: { mobile: "01xxxxxxxxx", password: "main******" },
@@ -31,12 +36,20 @@ app.get('/', (req, res) => {
                     id: "23rfewg4656t2qefgeti4534w2qe"
                 }
             }
-        }, {
-            url: "https://secret-refuge-39928.herokuapp.com/signUp",
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/lastActivities",
             type: "post request",
-            itTakes: { mobile: "01xxxxxxxxx", password: "main******", name: "7amada", email: "7amada@tomail.com", typeOfUser: "user||owner" },
-            itGive: "nothing"
-        }, {
+            itTakes: { userId: "sadfjweoifqmeoasl123e" },
+            itGive: {
+                reservations:[],
+                joinedGames:[]
+            }
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/cancelReservation",
+            type: "post request",
+            itTakes: { SchedualId:"sdacadcfasdcccccwegwva"},
+            itGive: {message:"says cancelled or not found reservation with the same id"}
+        },{
             url: "https://secret-refuge-39928.herokuapp.com/createPlace",
             type: "post request",
             itTakes: { owner_id: "sadfjweoifqmeoasl123e", name: "elgezira club", address: "8 elkamel mohamed ,zamalek", area: "zamalek", playGround: [] },
@@ -177,6 +190,44 @@ app.post('/loginToken', (req, res) => {
     else {
         res.status(400).send({ message: "The number less than or more 11" })
     }
+})
+
+
+
+app.post("/lastActivities",async(req,res)=>{
+   var activities={
+        reservations:[],
+        joinedGames:[]
+    }
+    await Schedual.find({reservedBy:req.body.userId}).then((reservations)=>{
+        activities.reservations=reservations;
+    })
+
+    await Schedual.find().then((allReservations)=>{
+        let joinedGames=[]
+        for(i=0;i<allReservations.length;i++){
+            if(allReservations[i].typeOfReservation.playersJoined.length!=0){
+                for(z=0;z<allReservations[i].typeOfReservation.playersJoined.length;z++)
+                    if(allReservations[i].typeOfReservation.playersJoined[z]===req.body.userId){
+                        joinedGames.push(allReservations[i])
+                    }
+            }
+        }
+        activities.joinedGames=joinedGames;
+    })
+    res.send(activities)
+})
+
+app.post("/cancelReservation" ,(req,res)=>{
+    
+    Schedual.findOneAndDelete({_id:req.body.SchedualId}).then((data)=>{
+        if(data!=null){
+            res.send({messege:"cancelled successfully"})
+        }else{
+            res.send({messege:"there is no schedual with this id"})
+        }
+        
+    })
 })
 
 app.post("/createschedual", (req, res) => {
