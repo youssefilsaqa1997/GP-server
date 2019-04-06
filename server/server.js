@@ -90,6 +90,11 @@ app.get('/', (req, res) => {
             type: "post request",
             itTakes: { reservationId:"sadfadgvawer43r4wef", userId:"sdaun298qwefhc9qowc" },
             itGive: "statues if you are joined or not"
+        },{
+            url: "https://secret-refuge-39928.herokuapp.com/unjoinGame",
+            type: "post request",
+            itTakes: { reservationId:"sadfadgvawer43r4wef", userId:"sdaun298qwefhc9qowc" },
+            itGive: "statues if you are unjoined or not joined before"
         }
         ]
     })
@@ -368,6 +373,24 @@ app.post("/joinGame",(req,res)=>{
             res.send({message:"there is no place, or you can't join 2 times at same reservation"})
         }
            
+    })
+})
+
+app.post("/unjoinGame",(req,res)=>{
+    Schedual.findById(req.body.reservationId).then((reservationObject)=>{
+        let updatedData=reservationObject.typeOfReservation;
+        if(updatedData.playersJoined.includes(req.body.userId) === true){
+            updatedData.playersJoined = updatedData.playersJoined.filter(player => player != req.body.userId);
+            updatedData.neededPlayers=updatedData.neededPlayers + 1;
+            if(updatedData.type==="private"){
+                updatedData.type="public";
+            }
+            Schedual.findOneAndUpdate({_id:reservationObject._id},{ $set: {typeOfReservation:updatedData}}).then((data)=>{
+                res.send({message:"unfortunately you are unjoined , try to join another gamer later"});
+            })
+        }else {
+            res.send("you are not joined this game before");
+        }
     })
 })
 
