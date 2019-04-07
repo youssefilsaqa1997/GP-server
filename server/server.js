@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
             type: "post request",
             itTakes: { mobile: "01xxxxxxxxx", password: "main******", name: "7amada", email: "7amada@tomail.com", typeOfUser: "user||owner" },
             itGive: "nothing"
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/loginToken",
             type: "post request",
             itTakes: { mobile: "01xxxxxxxxx", password: "main******" },
@@ -36,20 +36,20 @@ app.get('/', (req, res) => {
                     id: "23rfewg4656t2qefgeti4534w2qe"
                 }
             }
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/lastActivities",
             type: "post request",
             itTakes: { userId: "sadfjweoifqmeoasl123e" },
             itGive: {
-                reservations:[],
-                joinedGames:[]
+                reservations: [],
+                joinedGames: []
             }
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/cancelReservation",
             type: "post request",
-            itTakes: { SchedualId:"sdacadcfasdcccccwegwva"},
-            itGive: {message:"says cancelled or not found reservation with the same id"}
-        },{
+            itTakes: { SchedualId: "sdacadcfasdcccccwegwva" },
+            itGive: { message: "says cancelled or not found reservation with the same id" }
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/createPlace",
             type: "post request",
             itTakes: { owner_id: "sadfjweoifqmeoasl123e", name: "elgezira club", address: "8 elkamel mohamed ,zamalek", area: "zamalek", playGround: [] },
@@ -80,21 +80,31 @@ app.get('/', (req, res) => {
             type: "post request",
             itTakes: { date: "1/1/2001", type: "public||private" },
             itGive: "all hours in specific date with the same type"
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/boolenHours",
             type: "post request",
             itTakes: { place_id: "sadfjweoifqmeoasl123e", playGroundName: "field1", date: "1/1/2001" },
             itGive: "avalible hours (Array of Objects) .each object have string , integer & boolen(to show if this hour booked or not) values"
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/joinGame",
             type: "post request",
-            itTakes: { reservationId:"sadfadgvawer43r4wef", userId:"sdaun298qwefhc9qowc" },
+            itTakes: { reservationId: "sadfadgvawer43r4wef", userId: "sdaun298qwefhc9qowc" },
             itGive: "statues if you are joined or not"
-        },{
+        }, {
             url: "https://secret-refuge-39928.herokuapp.com/unjoinGame",
             type: "post request",
-            itTakes: { reservationId:"sadfadgvawer43r4wef", userId:"sdaun298qwefhc9qowc" },
+            itTakes: { reservationId: "sadfadgvawer43r4wef", userId: "sdaun298qwefhc9qowc" },
             itGive: "statues if you are unjoined or not joined before"
+        }, {
+            url: "https://secret-refuge-39928.herokuapp.com/monthAnalysis",
+            type: "post request",
+            itTakes: {"year": "2019","month": 6,"placeId":"5bfdd8f78a763720bc99e580","playgroundName":"field1"},
+            itGive: "array of objects , each object represent a day , each day have two propeties totalHour & totalReservations "
+        },, {
+            url: "https://secret-refuge-39928.herokuapp.com/yearAnalysis",
+            type: "post request",
+            itTakes: {"year": "2019","placeId":"5bfdd8f78a763720bc99e580","playgroundName":"field1"},
+            itGive: "array of objects , each object represent a month , each month have three propeties totalHour ,totalReservations & month"
         }
         ]
     })
@@ -199,39 +209,39 @@ app.post('/loginToken', (req, res) => {
 
 
 
-app.post("/lastActivities",async(req,res)=>{
-   var activities={
-        reservations:[],
-        joinedGames:[]
+app.post("/lastActivities", async (req, res) => {
+    var activities = {
+        reservations: [],
+        joinedGames: []
     }
-    await Schedual.find({reservedBy:req.body.userId}).then((reservations)=>{
-        activities.reservations=reservations;
+    await Schedual.find({ reservedBy: req.body.userId }).then((reservations) => {
+        activities.reservations = reservations;
     })
 
-    await Schedual.find().then((allReservations)=>{
-        let joinedGames=[]
-        for(i=0;i<allReservations.length;i++){
-            if(allReservations[i].typeOfReservation.playersJoined.length!=0){
-                for(z=0;z<allReservations[i].typeOfReservation.playersJoined.length;z++)
-                    if(allReservations[i].typeOfReservation.playersJoined[z]===req.body.userId){
+    await Schedual.find().then((allReservations) => {
+        let joinedGames = []
+        for (i = 0; i < allReservations.length; i++) {
+            if (allReservations[i].typeOfReservation.playersJoined.length != 0) {
+                for (z = 0; z < allReservations[i].typeOfReservation.playersJoined.length; z++)
+                    if (allReservations[i].typeOfReservation.playersJoined[z] === req.body.userId) {
                         joinedGames.push(allReservations[i])
                     }
             }
         }
-        activities.joinedGames=joinedGames;
+        activities.joinedGames = joinedGames;
     })
     res.send(activities)
 })
 
-app.post("/cancelReservation" ,(req,res)=>{
-    
-    Schedual.findOneAndDelete({_id:req.body.SchedualId}).then((data)=>{
-        if(data!=null){
-            res.send({messege:"cancelled successfully"})
-        }else{
-            res.send({messege:"there is no schedual with this id"})
+app.post("/cancelReservation", (req, res) => {
+
+    Schedual.findOneAndDelete({ _id: req.body.SchedualId }).then((data) => {
+        if (data != null) {
+            res.send({ messege: "cancelled successfully" })
+        } else {
+            res.send({ messege: "there is no schedual with this id" })
         }
-        
+
     })
 })
 
@@ -332,10 +342,10 @@ app.post("/boolenHours", (req, res) => {
             }
 
             for (y = 0; y < emptyHours.length; y++) {
-                if(closedHours.length===0 && templete.includes(emptyHours[y]) === false){
+                if (closedHours.length === 0 && templete.includes(emptyHours[y]) === false) {
                     hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
-                    templete.push(emptyHours[y])                    
-                }else{
+                    templete.push(emptyHours[y])
+                } else {
                     for (h = 0; h < closedHours.length; h++) {
                         if (emptyHours[y] == closedHours[h] && templete.includes(emptyHours[y]) === false) {
                             hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": true, "value": emptyHours[y] })
@@ -344,7 +354,7 @@ app.post("/boolenHours", (req, res) => {
                             hoursObjects.push({ "time": fullHours[emptyHours[y]], "isReserved": false, "value": emptyHours[y] })
                             templete.push(emptyHours[y])
                         }
-                        
+
                     }
                 }
             }
@@ -356,42 +366,95 @@ app.post("/boolenHours", (req, res) => {
 })
 
 
-app.post("/joinGame",(req,res)=>{
-    
-    Schedual.findById(req.body.reservationId).then((reservationObject)=>{
-        let updatedData=reservationObject.typeOfReservation;
-        if(updatedData.type==="public"&& updatedData.playersJoined.includes(req.body.userId) === false){ 
+app.post("/joinGame", (req, res) => {
+
+    Schedual.findById(req.body.reservationId).then((reservationObject) => {
+        let updatedData = reservationObject.typeOfReservation;
+        if (updatedData.type === "public" && updatedData.playersJoined.includes(req.body.userId) === false) {
             updatedData.playersJoined.push(req.body.userId);
-            updatedData.neededPlayers=updatedData.neededPlayers-1;
-            if(updatedData.neededPlayers==0){
-                updatedData.type="private"
+            updatedData.neededPlayers = updatedData.neededPlayers - 1;
+            if (updatedData.neededPlayers == 0) {
+                updatedData.type = "private"
             }
-            Schedual.findOneAndUpdate({_id:reservationObject._id},{ $set: {typeOfReservation:updatedData}}).then((data)=>{
-                res.send({message:"you are joined, please attend in your time"})
-            }) 
-        }else{
-            res.send({message:"there is no place, or you can't join 2 times at same reservation"})
+            Schedual.findOneAndUpdate({ _id: reservationObject._id }, { $set: { typeOfReservation: updatedData } }).then((data) => {
+                res.send({ message: "you are joined, please attend in your time" })
+            })
+        } else {
+            res.send({ message: "there is no place, or you can't join 2 times at same reservation" })
         }
-           
+
     })
 })
 
-app.post("/unjoinGame",(req,res)=>{
-    Schedual.findById(req.body.reservationId).then((reservationObject)=>{
-        let updatedData=reservationObject.typeOfReservation;
-        if(updatedData.playersJoined.includes(req.body.userId) === true){
+app.post("/unjoinGame", (req, res) => {
+    Schedual.findById(req.body.reservationId).then((reservationObject) => {
+        let updatedData = reservationObject.typeOfReservation;
+        if (updatedData.playersJoined.includes(req.body.userId) === true) {
             updatedData.playersJoined = updatedData.playersJoined.filter(player => player != req.body.userId);
-            updatedData.neededPlayers=updatedData.neededPlayers + 1;
-            if(updatedData.type==="private"){
-                updatedData.type="public";
+            updatedData.neededPlayers = updatedData.neededPlayers + 1;
+            if (updatedData.type === "private") {
+                updatedData.type = "public";
             }
-            Schedual.findOneAndUpdate({_id:reservationObject._id},{ $set: {typeOfReservation:updatedData}}).then((data)=>{
-                res.send({message:"unfortunately you are unjoined , try to join another gamer later"});
+            Schedual.findOneAndUpdate({ _id: reservationObject._id }, { $set: { typeOfReservation: updatedData } }).then((data) => {
+                res.send({ message: "unfortunately you are unjoined , try to join another gamer later" });
             })
-        }else {
+        } else {
             res.send("you are not joined this game before");
         }
     })
+})
+
+app.post("/yearAnalysis", async (req, res) => {
+    year = req.body.year;
+    playgroundName = req.body.playgroundName;
+    monthCounter = 0;
+    totalHours = 0;
+    yearArray = [];
+    await Place.findById(req.body.placeId).then(async (placeObject) => {
+        fieldArray = placeObject.playGround;
+        fieldObject = fieldArray.find((field) => { return field.name == playgroundName })
+        for (m = 1; m < 13; m++) {
+            for (d = 1; d <= new Date(year, m, 0).getDate(); d++) {
+                let completeDate = `${d}/${m}/${year}`
+                await Schedual.find({ place_id: req.body.placeId, date: completeDate, playGroundName: playgroundName }).then((dayScheduals) => {
+                    monthCounter = monthCounter + dayScheduals.length
+                })
+            }
+            totalHours = new Date(year, m, 0).getDate() * fieldObject.avalibleHours.length;
+            yearArray.push({ totalHour: totalHours, totalReservations: monthCounter , month:m  })
+            monthCounter = 0;
+            totalHours = 0;
+        }
+    })
+    res.send(yearArray);
+})
+
+app.post("/monthAnalysis", async (req, res) => {
+    year = req.body.year;
+    month = req.body.month;
+    playgroundName = req.body.playgroundName;
+    monthArray = [
+         {totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}
+        ,{totalHour: 0,totalReservations: 0}];
+    await Place.findById(req.body.placeId).then(async (placeObject) => {
+        fieldArray = placeObject.playGround;
+        fieldObject = fieldArray.find((field) => { return field.name == playgroundName })
+        fieldObject.avalibleHours.length
+            for (d = 1; d <= new Date(year, month, 0).getDate(); d++) {
+                let completeDate = `${d}/${month}/${year}`
+                await Schedual.find({ place_id: req.body.placeId, date: completeDate, playGroundName: playgroundName }).then((dayScheduals) => {
+                    day = new Date(`${month}/${d}/${year}`)   
+                    monthArray[day.getDay()].totalReservations = monthArray[day.getDay()].totalReservations + dayScheduals.length;
+                    monthArray[day.getDay()].totalHour=monthArray[day.getDay()].totalHour+fieldObject.avalibleHours.length;
+                })
+            }
+    })
+    res.send(monthArray);
 })
 
 app.listen(port, () => {
